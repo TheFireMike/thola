@@ -16,8 +16,8 @@ import (
 	"github.com/inexio/thola/internal/utility"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -58,6 +58,7 @@ type deviceClassComponents struct {
 	disk             *deviceClassComponentsDisk
 	hardwareHealth   *deviceClassComponentsHardwareHealth
 	highAvailability *deviceClassComponentsHighAvailability
+	siem             *deviceClassComponentsSIEM
 }
 
 // deviceClassComponentsUPS represents the ups components part of a device class.
@@ -125,6 +126,73 @@ type deviceClassComponentsHighAvailability struct {
 	nodes property.Reader
 }
 
+// deviceClassComponentsSIEM represents the SIEM part of a device class.
+type deviceClassComponentsSIEM struct {
+	siem                                         property.Reader
+	systemVersion                                property.Reader
+	lastRecordedMessagesPerSecondNormalizer      property.Reader
+	averageMessagesPerSecondLast5minNormalizer   property.Reader
+	lastRecordedMessagesPerSecondStoreHandler    property.Reader
+	averageMessagesPerSecondLast5minStoreHandler property.Reader
+	servicesCurrentlyDown                        property.Reader
+
+	cpuConsumptionCollection      property.Reader
+	cpuConsumptionNormalization   property.Reader
+	cpuConsumptionEnrichment      property.Reader
+	cpuConsumptionIndexing        property.Reader
+	cpuConsumptionDashboardAlerts property.Reader
+
+	memoryConsumptionCollection      property.Reader
+	memoryConsumptionNormalization   property.Reader
+	memoryConsumptionEnrichment      property.Reader
+	memoryConsumptionIndexing        property.Reader
+	memoryConsumptionDashboardAlerts property.Reader
+
+	queueCollection      property.Reader
+	queueNormalization   property.Reader
+	queueEnrichment      property.Reader
+	queueIndexing        property.Reader
+	queueDashboardAlerts property.Reader
+
+	activeSearchProcesses property.Reader
+
+	diskUsageDashboardAlerts property.Reader
+
+	zfsPools groupproperty.Reader
+
+	repositories groupproperty.Reader
+
+	//director
+	fabricServerVersion                       property.Reader
+	fabricServerIOWait                        property.Reader
+	fabricServerVMSwapiness                   property.Reader
+	fabricServerClusterSize                   property.Reader
+	fabricServerProxyCpuUsage                 property.Reader
+	fabricServerProxyMemoryUsage              property.Reader
+	fabricServerProxyNumberOfAliveConnections property.Reader
+	fabricServerProxyState                    property.Reader
+	fabricServerProxyNodesCount               property.Reader
+	fabricServerStorageCpuUsage               property.Reader
+	fabricServerStorageMemoryUsage            property.Reader
+	fabricServerStorageConfiguredCapacity     property.Reader
+	fabricServerStorageAvailableCapacity      property.Reader
+	fabricServerStorageDfsUsed                property.Reader
+	fabricServerStorageUnderReplicatedBlocks  property.Reader
+	fabricServerStorageLiveDataNodes          property.Reader
+
+	fabricServerAuthenticatorCpuUsage           property.Reader
+	fabricServerAuthenticatorMemoryUsage        property.Reader
+	fabricServerAuthenticatorServiceStatus      property.Reader
+	fabricServerAuthenticatorAdminServiceStatus property.Reader
+	fabricServerZFSPools                        groupproperty.Reader
+
+	apiServerVersion     property.Reader
+	apiServerIOWait      property.Reader
+	apiServerVMSwapiness property.Reader
+	apiServerCpuUsage    property.Reader
+	apiServerMemoryUsage property.Reader
+}
+
 // deviceClassConfig represents the config part of a device class.
 type deviceClassConfig struct {
 	snmp       deviceClassSNMP
@@ -168,6 +236,7 @@ type yamlDeviceClassComponents struct {
 	Disk             *yamlComponentsDiskProperties           `yaml:"disk"`
 	HardwareHealth   *yamlComponentsHardwareHealthProperties `yaml:"hardware_health"`
 	HighAvailability *yamlComponentsHighAvailability         `yaml:"high_availability"`
+	SIEM             *yamlComponentsSIEM                     `yaml:"siem"`
 }
 
 // yamlDeviceClassConfig represents the config part of a yaml device class.
@@ -254,6 +323,73 @@ type yamlComponentsHighAvailability struct {
 	Nodes []interface{}
 }
 
+// yamlComponentsSIEM represents the SIEM part of a device class.
+type yamlComponentsSIEM struct {
+	SIEM                                         []interface{} `yaml:"siem"`
+	SystemVersion                                []interface{} `yaml:"system_version"`
+	LastRecordedMessagesPerSecondNormalizer      []interface{} `yaml:"last_recorded_messages_per_second_normalizer"`
+	AverageMessagesPerSecondLast5minNormalizer   []interface{} `yaml:"average_messages_per_second_last_5_min_normalizer"`
+	LastRecordedMessagesPerSecondStoreHandler    []interface{} `yaml:"last_recorded_messages_per_second_store_handler"`
+	AverageMessagesPerSecondLast5minStoreHandler []interface{} `yaml:"average_messages_per_second_last_5_min_store_handler"`
+	ServicesCurrentlyDown                        []interface{} `yaml:"services_currently_down"`
+
+	CpuConsumptionCollection      []interface{} `yaml:"cpu_consumption_collection"`
+	CpuConsumptionNormalization   []interface{} `yaml:"cpu_consumption_normalization"`
+	CpuConsumptionEnrichment      []interface{} `yaml:"cpu_consumption_enrichment"`
+	CpuConsumptionIndexing        []interface{} `yaml:"cpu_consumption_indexing"`
+	CpuConsumptionDashboardAlerts []interface{} `yaml:"cpu_consumption_dashboard_alerts"`
+
+	MemoryConsumptionCollection      []interface{} `yaml:"memory_consumption_collection"`
+	MemoryConsumptionNormalization   []interface{} `yaml:"memory_consumption_normalization"`
+	MemoryConsumptionEnrichment      []interface{} `yaml:"memory_consumption_enrichment"`
+	MemoryConsumptionIndexing        []interface{} `yaml:"memory_consumption_indexing"`
+	MemoryConsumptionDashboardAlerts []interface{} `yaml:"memory_consumption_dashboard_alerts"`
+
+	QueueCollection      []interface{} `yaml:"queue_collection"`
+	QueueNormalization   []interface{} `yaml:"queue_normalization"`
+	QueueEnrichment      []interface{} `yaml:"queue_enrichment"`
+	QueueIndexing        []interface{} `yaml:"queue_indexing"`
+	QueueDashboardAlerts []interface{} `yaml:"queue_dashboard_alerts"`
+
+	ActiveSearchProcesses []interface{} `yaml:"active_search_processes"`
+
+	DiskUsageDashboardAlerts []interface{} `yaml:"disk_usage_dashboard_alerts"`
+
+	ZFSPools interface{} `yaml:"zfs_pools"`
+
+	Repositories interface{} `yaml:"repositories"`
+
+	//director
+	FabricServerProxyNodesCount               []interface{} `yaml:"fabric_server_proxy_nodes_count"`
+	FabricServerVersion                       []interface{} `yaml:"fabric_server_version"`
+	FabricServerIOWait                        []interface{} `yaml:"fabric_server_i_o_wait"`
+	FabricServerVMSwapiness                   []interface{} `yaml:"fabric_server_vm_swapiness"`
+	FabricServerClusterSize                   []interface{} `yaml:"fabric_server_cluster_size"`
+	FabricServerProxyCpuUsage                 []interface{} `yaml:"fabric_server_proxy_cpu_usage"`
+	FabricServerProxyMemoryUsage              []interface{} `yaml:"fabric_server_proxy_memory_usage"`
+	FabricServerProxyNumberOfAliveConnections []interface{} `yaml:"fabric_server_proxy_number_of_alive_connections"`
+	FabricServerProxyState                    []interface{} `yaml:"fabric_server_proxy_state"`
+	FabricServerStorageCpuUsage               []interface{} `yaml:"fabric_server_storage_cpu_usage"`
+	FabricServerStorageMemoryUsage            []interface{} `yaml:"fabric_server_storage_memory_usage"`
+	FabricServerStorageConfiguredCapacity     []interface{} `yaml:"fabric_server_storage_configured_capacity"`
+	FabricServerStorageAvailableCapacity      []interface{} `yaml:"fabric_server_storage_available_capacity"`
+	FabricServerStorageDfsUsed                []interface{} `yaml:"fabric_server_storage_dfs_used"`
+	FabricServerStorageUnderReplicatedBlocks  []interface{} `yaml:"fabric_server_storage_under_replicated_blocks"`
+	FabricServerStorageLiveDataNodes          []interface{} `yaml:"fabric_server_storage_live_data_nodes"`
+
+	FabricServerAuthenticatorCpuUsage           []interface{} `yaml:"fabric_server_authenticator_cpu_usage"`
+	FabricServerAuthenticatorMemoryUsage        []interface{} `yaml:"fabric_server_authenticator_memory_usage"`
+	FabricServerAuthenticatorServiceStatus      []interface{} `yaml:"fabric_server_authenticator_service_status"`
+	FabricServerAuthenticatorAdminServiceStatus []interface{} `yaml:"fabric_server_authenticator_admin_service_status"`
+	FabricServerZFSPools                        interface{}   `yaml:"fabric_server_zfs_pools"`
+
+	ApiServerVersion     []interface{} `yaml:"api_server_version"`
+	ApiServerIOWait      []interface{} `yaml:"api_server_i_o_wait"`
+	ApiServerVMSwapiness []interface{} `yaml:"api_server_vm_swapiness"`
+	ApiServerCpuUsage    []interface{} `yaml:"api_server_cluster_cpu_usage"`
+	ApiServerMemoryUsage []interface{} `yaml:"api_server_cluster_memory_usage"`
+}
+
 //
 // Here are definitions of interfaces of yaml device classes.
 //
@@ -288,7 +424,7 @@ func yamlFile2Hierarchy(file fs.File, directory string, parentDeviceClass *devic
 		return hierarchy.Hierarchy{}, errors.New("only yaml files are allowed for this function")
 	}
 
-	contents, err := ioutil.ReadAll(file)
+	contents, err := io.ReadAll(file)
 	if err != nil {
 		return hierarchy.Hierarchy{}, errors.Wrap(err, "failed to read file")
 	}
@@ -536,6 +672,14 @@ func (y *yamlDeviceClassComponents) convert(parentComponents deviceClassComponen
 			return deviceClassComponents{}, errors.Wrap(err, "failed to read yaml high availability properties")
 		}
 		components.highAvailability = &ha
+	}
+
+	if y.SIEM != nil {
+		siem, err := y.SIEM.convert(parentComponents.siem)
+		if err != nil {
+			return deviceClassComponents{}, errors.Wrap(err, "failed to read yaml siem properties")
+		}
+		components.siem = &siem
 	}
 
 	return components, nil
@@ -933,6 +1077,382 @@ func (y *yamlComponentsHighAvailability) convert(parentHA *deviceClassComponents
 		prop.nodes, err = property.InterfaceSlice2Reader(y.Nodes, condition.PropertyDefault, prop.nodes)
 		if err != nil {
 			return deviceClassComponentsHighAvailability{}, errors.Wrap(err, "failed to convert nodes property to property reader")
+		}
+	}
+
+	return prop, nil
+}
+
+func (y *yamlComponentsSIEM) convert(parentSIEM *deviceClassComponentsSIEM) (deviceClassComponentsSIEM, error) {
+	var prop deviceClassComponentsSIEM
+	var err error
+
+	if parentSIEM != nil {
+		prop = *parentSIEM
+	}
+
+	if y.LastRecordedMessagesPerSecondNormalizer != nil {
+		prop.lastRecordedMessagesPerSecondNormalizer, err = property.InterfaceSlice2Reader(y.LastRecordedMessagesPerSecondNormalizer, condition.PropertyDefault, prop.lastRecordedMessagesPerSecondNormalizer)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert LastRecordedMessagesPerSecondNormalizer property to property reader")
+		}
+	}
+
+	if y.AverageMessagesPerSecondLast5minNormalizer != nil {
+		prop.averageMessagesPerSecondLast5minNormalizer, err = property.InterfaceSlice2Reader(y.AverageMessagesPerSecondLast5minNormalizer, condition.PropertyDefault, prop.averageMessagesPerSecondLast5minNormalizer)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert AverageMessagesPerSecondLast5minNormalizer property to property reader")
+		}
+	}
+
+	if y.LastRecordedMessagesPerSecondStoreHandler != nil {
+		prop.lastRecordedMessagesPerSecondStoreHandler, err = property.InterfaceSlice2Reader(y.LastRecordedMessagesPerSecondStoreHandler, condition.PropertyDefault, prop.lastRecordedMessagesPerSecondStoreHandler)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert LastRecordedMessagesPerSecondStoreHandler property to property reader")
+		}
+	}
+
+	if y.AverageMessagesPerSecondLast5minStoreHandler != nil {
+		prop.averageMessagesPerSecondLast5minStoreHandler, err = property.InterfaceSlice2Reader(y.AverageMessagesPerSecondLast5minStoreHandler, condition.PropertyDefault, prop.averageMessagesPerSecondLast5minStoreHandler)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert AverageMessagesPerSecondLast5minStoreHandler property to property reader")
+		}
+	}
+
+	if y.ServicesCurrentlyDown != nil {
+		prop.servicesCurrentlyDown, err = property.InterfaceSlice2Reader(y.ServicesCurrentlyDown, condition.PropertyDefault, prop.servicesCurrentlyDown)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert ServicesCurrentlyDown property to property reader")
+		}
+	}
+
+	if y.SystemVersion != nil {
+		prop.systemVersion, err = property.InterfaceSlice2Reader(y.SystemVersion, condition.PropertyDefault, prop.systemVersion)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert SystemVersion property to property reader")
+		}
+	}
+
+	if y.SIEM != nil {
+		prop.siem, err = property.InterfaceSlice2Reader(y.SIEM, condition.PropertyDefault, prop.siem)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.CpuConsumptionCollection != nil {
+		prop.cpuConsumptionCollection, err = property.InterfaceSlice2Reader(y.CpuConsumptionCollection, condition.PropertyDefault, prop.cpuConsumptionCollection)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.CpuConsumptionNormalization != nil {
+		prop.cpuConsumptionNormalization, err = property.InterfaceSlice2Reader(y.CpuConsumptionNormalization, condition.PropertyDefault, prop.cpuConsumptionNormalization)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.CpuConsumptionEnrichment != nil {
+		prop.cpuConsumptionEnrichment, err = property.InterfaceSlice2Reader(y.CpuConsumptionEnrichment, condition.PropertyDefault, prop.cpuConsumptionEnrichment)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.CpuConsumptionIndexing != nil {
+		prop.cpuConsumptionIndexing, err = property.InterfaceSlice2Reader(y.CpuConsumptionIndexing, condition.PropertyDefault, prop.cpuConsumptionIndexing)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.CpuConsumptionDashboardAlerts != nil {
+		prop.cpuConsumptionDashboardAlerts, err = property.InterfaceSlice2Reader(y.CpuConsumptionDashboardAlerts, condition.PropertyDefault, prop.cpuConsumptionDashboardAlerts)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.MemoryConsumptionCollection != nil {
+		prop.memoryConsumptionCollection, err = property.InterfaceSlice2Reader(y.MemoryConsumptionCollection, condition.PropertyDefault, prop.memoryConsumptionCollection)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.MemoryConsumptionNormalization != nil {
+		prop.memoryConsumptionNormalization, err = property.InterfaceSlice2Reader(y.MemoryConsumptionNormalization, condition.PropertyDefault, prop.memoryConsumptionNormalization)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.MemoryConsumptionEnrichment != nil {
+		prop.memoryConsumptionEnrichment, err = property.InterfaceSlice2Reader(y.MemoryConsumptionEnrichment, condition.PropertyDefault, prop.memoryConsumptionEnrichment)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.MemoryConsumptionIndexing != nil {
+		prop.memoryConsumptionIndexing, err = property.InterfaceSlice2Reader(y.MemoryConsumptionIndexing, condition.PropertyDefault, prop.memoryConsumptionIndexing)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.MemoryConsumptionDashboardAlerts != nil {
+		prop.memoryConsumptionDashboardAlerts, err = property.InterfaceSlice2Reader(y.MemoryConsumptionDashboardAlerts, condition.PropertyDefault, prop.memoryConsumptionDashboardAlerts)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.QueueCollection != nil {
+		prop.queueCollection, err = property.InterfaceSlice2Reader(y.QueueCollection, condition.PropertyDefault, prop.queueCollection)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.QueueNormalization != nil {
+		prop.queueNormalization, err = property.InterfaceSlice2Reader(y.QueueNormalization, condition.PropertyDefault, prop.queueNormalization)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.QueueEnrichment != nil {
+		prop.queueEnrichment, err = property.InterfaceSlice2Reader(y.QueueEnrichment, condition.PropertyDefault, prop.queueEnrichment)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.QueueIndexing != nil {
+		prop.queueIndexing, err = property.InterfaceSlice2Reader(y.QueueIndexing, condition.PropertyDefault, prop.queueIndexing)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.QueueDashboardAlerts != nil {
+		prop.queueDashboardAlerts, err = property.InterfaceSlice2Reader(y.QueueDashboardAlerts, condition.PropertyDefault, prop.queueDashboardAlerts)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.ActiveSearchProcesses != nil {
+		prop.activeSearchProcesses, err = property.InterfaceSlice2Reader(y.ActiveSearchProcesses, condition.PropertyDefault, prop.activeSearchProcesses)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.DiskUsageDashboardAlerts != nil {
+		prop.diskUsageDashboardAlerts, err = property.InterfaceSlice2Reader(y.DiskUsageDashboardAlerts, condition.PropertyDefault, prop.diskUsageDashboardAlerts)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.ZFSPools != nil {
+		prop.zfsPools, err = groupproperty.Interface2Reader(y.ZFSPools, prop.zfsPools)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.Repositories != nil {
+		prop.repositories, err = groupproperty.Interface2Reader(y.Repositories, prop.repositories)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	//director
+	if y.FabricServerProxyCpuUsage != nil {
+		prop.fabricServerProxyCpuUsage, err = property.InterfaceSlice2Reader(y.FabricServerProxyCpuUsage, condition.PropertyDefault, prop.fabricServerProxyCpuUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerProxyMemoryUsage != nil {
+		prop.fabricServerProxyMemoryUsage, err = property.InterfaceSlice2Reader(y.FabricServerProxyMemoryUsage, condition.PropertyDefault, prop.fabricServerProxyMemoryUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerProxyNumberOfAliveConnections != nil {
+		prop.fabricServerProxyNumberOfAliveConnections, err = property.InterfaceSlice2Reader(y.FabricServerProxyNumberOfAliveConnections, condition.PropertyDefault, prop.fabricServerProxyNumberOfAliveConnections)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerProxyState != nil {
+		prop.fabricServerProxyState, err = property.InterfaceSlice2Reader(y.FabricServerProxyState, condition.PropertyDefault, prop.fabricServerProxyState)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerProxyNodesCount != nil {
+		prop.fabricServerProxyNodesCount, err = property.InterfaceSlice2Reader(y.FabricServerProxyNodesCount, condition.PropertyDefault, prop.fabricServerProxyNodesCount)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerVersion != nil {
+		prop.fabricServerVersion, err = property.InterfaceSlice2Reader(y.FabricServerVersion, condition.PropertyDefault, prop.fabricServerVersion)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerIOWait != nil {
+		prop.fabricServerIOWait, err = property.InterfaceSlice2Reader(y.FabricServerIOWait, condition.PropertyDefault, prop.fabricServerIOWait)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerVMSwapiness != nil {
+		prop.fabricServerVMSwapiness, err = property.InterfaceSlice2Reader(y.FabricServerVMSwapiness, condition.PropertyDefault, prop.fabricServerVMSwapiness)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerClusterSize != nil {
+		prop.fabricServerClusterSize, err = property.InterfaceSlice2Reader(y.FabricServerClusterSize, condition.PropertyDefault, prop.fabricServerClusterSize)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerStorageCpuUsage != nil {
+		prop.fabricServerStorageCpuUsage, err = property.InterfaceSlice2Reader(y.FabricServerStorageCpuUsage, condition.PropertyDefault, prop.fabricServerStorageCpuUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerStorageMemoryUsage != nil {
+		prop.fabricServerStorageMemoryUsage, err = property.InterfaceSlice2Reader(y.FabricServerStorageMemoryUsage, condition.PropertyDefault, prop.fabricServerStorageMemoryUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerStorageConfiguredCapacity != nil {
+		prop.fabricServerStorageConfiguredCapacity, err = property.InterfaceSlice2Reader(y.FabricServerStorageConfiguredCapacity, condition.PropertyDefault, prop.fabricServerStorageConfiguredCapacity)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerStorageAvailableCapacity != nil {
+		prop.fabricServerStorageAvailableCapacity, err = property.InterfaceSlice2Reader(y.FabricServerStorageAvailableCapacity, condition.PropertyDefault, prop.fabricServerStorageAvailableCapacity)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerStorageDfsUsed != nil {
+		prop.fabricServerStorageDfsUsed, err = property.InterfaceSlice2Reader(y.FabricServerStorageDfsUsed, condition.PropertyDefault, prop.fabricServerStorageDfsUsed)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerStorageUnderReplicatedBlocks != nil {
+		prop.fabricServerStorageUnderReplicatedBlocks, err = property.InterfaceSlice2Reader(y.FabricServerStorageUnderReplicatedBlocks, condition.PropertyDefault, prop.fabricServerStorageUnderReplicatedBlocks)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerStorageLiveDataNodes != nil {
+		prop.fabricServerStorageLiveDataNodes, err = property.InterfaceSlice2Reader(y.FabricServerStorageLiveDataNodes, condition.PropertyDefault, prop.fabricServerStorageLiveDataNodes)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerAuthenticatorCpuUsage != nil {
+		prop.fabricServerAuthenticatorCpuUsage, err = property.InterfaceSlice2Reader(y.FabricServerAuthenticatorCpuUsage, condition.PropertyDefault, prop.fabricServerAuthenticatorCpuUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerAuthenticatorMemoryUsage != nil {
+		prop.fabricServerAuthenticatorMemoryUsage, err = property.InterfaceSlice2Reader(y.FabricServerAuthenticatorMemoryUsage, condition.PropertyDefault, prop.fabricServerAuthenticatorMemoryUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerAuthenticatorServiceStatus != nil {
+		prop.fabricServerAuthenticatorServiceStatus, err = property.InterfaceSlice2Reader(y.FabricServerAuthenticatorServiceStatus, condition.PropertyDefault, prop.fabricServerAuthenticatorServiceStatus)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerAuthenticatorAdminServiceStatus != nil {
+		prop.fabricServerAuthenticatorAdminServiceStatus, err = property.InterfaceSlice2Reader(y.FabricServerAuthenticatorAdminServiceStatus, condition.PropertyDefault, prop.fabricServerAuthenticatorAdminServiceStatus)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.FabricServerZFSPools != nil {
+		prop.fabricServerZFSPools, err = groupproperty.Interface2Reader(y.FabricServerZFSPools, prop.fabricServerZFSPools)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.ApiServerVersion != nil {
+		prop.apiServerVersion, err = property.InterfaceSlice2Reader(y.ApiServerVersion, condition.PropertyDefault, prop.apiServerVersion)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.ApiServerIOWait != nil {
+		prop.apiServerIOWait, err = property.InterfaceSlice2Reader(y.ApiServerIOWait, condition.PropertyDefault, prop.apiServerIOWait)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.ApiServerVMSwapiness != nil {
+		prop.apiServerVMSwapiness, err = property.InterfaceSlice2Reader(y.ApiServerVMSwapiness, condition.PropertyDefault, prop.apiServerVMSwapiness)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.ApiServerCpuUsage != nil {
+		prop.apiServerCpuUsage, err = property.InterfaceSlice2Reader(y.ApiServerCpuUsage, condition.PropertyDefault, prop.apiServerCpuUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
+		}
+	}
+
+	if y.ApiServerMemoryUsage != nil {
+		prop.apiServerMemoryUsage, err = property.InterfaceSlice2Reader(y.ApiServerMemoryUsage, condition.PropertyDefault, prop.apiServerMemoryUsage)
+		if err != nil {
+			return deviceClassComponentsSIEM{}, errors.Wrap(err, "failed to convert siem property to property reader")
 		}
 	}
 
