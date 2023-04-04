@@ -310,7 +310,7 @@ type CPU struct {
 
 // MemoryComponent
 //
-// MemoryComponent represents a Memory component
+// # MemoryComponent represents a Memory component
 //
 // swagger:model
 type MemoryComponent struct {
@@ -545,105 +545,6 @@ func (h HighAvailabilityComponentState) GetInt() (int, error) {
 		return 2, nil
 	}
 	return 0, fmt.Errorf("invalid high availability state '%s'", h)
-}
-
-// SIEMComponent
-//
-// SIEMComponent represents the siem information of a device.
-//
-// swagger:model
-type SIEMComponent struct {
-	SIEM                                         *string `yaml:"siem" json:"siem" mapstructure:"siem"`
-	SystemVersion                                *string `yaml:"system_version" json:"system_version" mapstructure:"system_version"`
-	LastRecordedMessagesPerSecondNormalizer      *int    `yaml:"last_recorded_messages_per_second_normalizer" json:"last_recorded_messages_per_second_normalizer" mapstructure:"last_recorded_messages_per_second_normalizer"`
-	AverageMessagesPerSecondLast5minNormalizer   *int    `yaml:"average_messages_per_second_last_5_min_normalizer" json:"average_messages_per_second_last_5_min_normalizer" mapstructure:"average_messages_per_second_last_5_min_normalizer"`
-	LastRecordedMessagesPerSecondStoreHandler    *int    `yaml:"last_recorded_messages_per_second_store_handler" json:"last_recorded_messages_per_second_store_handler" mapstructure:"last_recorded_messages_per_second_store_handler"`
-	AverageMessagesPerSecondLast5minStoreHandler *int    `yaml:"average_messages_per_second_last_5_min_store_handler" json:"average_messages_per_second_last_5_min_store_handler" mapstructure:"average_messages_per_second_last_5_min_store_handler"`
-	ServicesCurrentlyDown                        *int    `yaml:"services_currently_down" json:"services_currently_down" mapstructure:"services_currently_down"`
-
-	CpuConsumptionCollection      *float64 `yaml:"cpu_consumption_collection" json:"cpu_consumption_collection" mapstructure:"cpu_consumption_collection"`
-	CpuConsumptionNormalization   *float64 `yaml:"cpu_consumption_normalization" json:"cpu_consumption_normalization" mapstructure:"cpu_consumption_normalization"`
-	CpuConsumptionEnrichment      *float64 `yaml:"cpu_consumption_enrichment" json:"cpu_consumption_enrichment" mapstructure:"cpu_consumption_enrichment"`
-	CpuConsumptionIndexing        *float64 `yaml:"cpu_consumption_indexing" json:"cpu_consumption_indexing" mapstructure:"cpu_consumption_indexing"`
-	CpuConsumptionDashboardAlerts *float64 `yaml:"cpu_consumption_dashboard_alerts" json:"cpu_consumption_dashboard_alerts" mapstructure:"cpu_consumption_dashboard_alerts"`
-
-	MemoryConsumptionCollection      *float64 `yaml:"memory_consumption_collection" json:"memory_consumption_collection" mapstructure:"memory_consumption_collection"`
-	MemoryConsumptionNormalization   *float64 `yaml:"memory_consumption_normalization" json:"memory_consumption_normalization" mapstructure:"memory_consumption_normalization"`
-	MemoryConsumptionEnrichment      *float64 `yaml:"memory_consumption_enrichment" json:"memory_consumption_enrichment" mapstructure:"memory_consumption_enrichment"`
-	MemoryConsumptionIndexing        *float64 `yaml:"memory_consumption_indexing" json:"memory_consumption_indexing" mapstructure:"memory_consumption_indexing"`
-	MemoryConsumptionDashboardAlerts *float64 `yaml:"memory_consumption_dashboard_alerts" json:"memory_consumption_dashboard_alerts" mapstructure:"memory_consumption_dashboard_alerts"`
-
-	QueueCollection      *float64 `yaml:"queue_collection" json:"queue_collection" mapstructure:"queue_collection"`
-	QueueNormalization   *float64 `yaml:"queue_normalization" json:"queue_normalization" mapstructure:"queue_normalization"`
-	QueueEnrichment      *float64 `yaml:"queue_enrichment" json:"queue_enrichment" mapstructure:"queue_enrichment"`
-	QueueIndexing        *float64 `yaml:"queue_indexing" json:"queue_indexing" mapstructure:"queue_indexing"`
-	QueueDashboardAlerts *float64 `yaml:"queue_dashboard_alerts" json:"queue_dashboard_alerts" mapstructure:"queue_dashboard_alerts"`
-
-	ActiveSearchProcesses *int `yaml:"active_search_processes" json:"active_search_processes" mapstructure:"active_search_processes"`
-
-	DiskUsageDashboardAlerts *float64 `yaml:"disk_usage_dashboard_alerts" json:"disk_usage_dashboard_alerts" mapstructure:"disk_usage_dashboard_alerts"`
-
-	ZFSPools []SIEMComponentZFSPool `yaml:"zfs_pools" json:"zfs_pools" xml:"zfs_pools" mapstructure:"zfs_pools"`
-
-	Repositories []SIEMComponentRepository `yaml:"repositories" json:"repositories" xml:"repositories" mapstructure:"repositories"`
-
-	//director
-	FabricServerVersion                       *string  `yaml:"fabric_server_version" json:"fabric_server_version" mapstructure:"fabric_server_version"`
-	FabricServerIOWait                        *float64 `yaml:"fabric_server_io_wait" json:"fabric_server_io_wait" mapstructure:"fabric_server_io_wait"`
-	FabricServerVMSwapiness                   *float64 `yaml:"fabric_server_vm_swapiness" json:"fabric_server_vm_swapiness" mapstructure:"fabric_server_vm_swapiness"`
-	FabricServerClusterSize                   *int     `yaml:"fabric_server_cluster_size" json:"fabric_server_cluster_size" mapstructure:"fabric_server_cluster_size"`
-	FabricServerProxyCpuUsage                 *float64 `yaml:"fabric_server_proxy_cpu_usage" json:"fabric_server_proxy_cpu_usage" mapstructure:"fabric_server_proxy_cpu_usage"`
-	FabricServerProxyMemoryUsage              *float64 `yaml:"fabric_server_proxy_memory_usage" json:"fabric_server_proxy_memory_usage" mapstructure:"fabric_server_proxy_memory_usage"`
-	FabricServerProxyNumberOfAliveConnections *float64 `yaml:"fabric_server_proxy_number_of_alive_connections" json:"fabric_server_proxy_number_of_alive_connections" mapstructure:"fabric_server_proxy_number_of_alive_connections"`
-	FabricServerProxyState                    *string  `yaml:"fabric_server_proxy_state" json:"fabric_server_proxy_state" mapstructure:"fabric_server_proxy_state"`
-	FabricServerProxyNodesCount               *float64 `yaml:"fabric_server_proxy_nodes_count" json:"fabric_server_proxy_nodes_count" mapstructure:"fabric_server_proxy_nodes_count"`
-	FabricServerStorageCpuUsage               *float64 `yaml:"fabric_server_storage_cpu_usage" json:"fabric_server_storage_cpu_usage" mapstructure:"fabric_server_storage_cpu_usage"`
-	FabricServerStorageMemoryUsage            *float64 `yaml:"fabric_server_storage_memory_usage" json:"fabric_server_storage_memory_usage" mapstructure:"fabric_server_storage_memory_usage"`
-	FabricServerStorageConfiguredCapacity     *string  `yaml:"fabric_server_storage_configured_capacity" json:"fabric_server_storage_configured_capacity" mapstructure:"fabric_server_storage_configured_capacity"`
-	FabricServerStorageAvailableCapacity      *string  `yaml:"fabric_server_storage_available_capacity" json:"fabric_server_storage_available_capacity" mapstructure:"fabric_server_storage_available_capacity"`
-	FabricServerStorageDfsUsed                *float64 `yaml:"fabric_server_storage_dfs_used" json:"fabric_server_storage_dfs_used" mapstructure:"fabric_server_storage_dfs_used"`
-	FabricServerStorageUnderReplicatedBlocks  *int     `yaml:"fabric_server_storage_under_replicated_blocks" json:"fabric_server_storage_under_replicated_blocks" mapstructure:"fabric_server_storage_under_replicated_blocks"`
-	FabricServerStorageLiveDataNodes          *int     `yaml:"fabric_server_storage_live_data_nodes" json:"fabric_server_storage_live_data_nodes" mapstructure:"fabric_server_storage_live_data_nodes"`
-
-	FabricServerAuthenticatorCpuUsage           *float64               `yaml:"fabric_server_authenticator_cpu_usage" json:"fabric_server_authenticator_cpu_usage" mapstructure:"fabric_server_authenticator_cpu_usage"`
-	FabricServerAuthenticatorMemoryUsage        *float64               `yaml:"fabric_server_authenticator_memory_usage" json:"fabric_server_authenticator_memory_usage" mapstructure:"fabric_server_authenticator_memory_usage"`
-	FabricServerAuthenticatorServiceStatus      *string                `yaml:"fabric_server_authenticator_service_status" json:"fabric_server_authenticator_service_status" mapstructure:"fabric_server_authenticator_service_status"`
-	FabricServerAuthenticatorAdminServiceStatus *string                `yaml:"fabric_server_authenticator_admin_service_status" json:"fabric_server_authenticator_admin_service_status" mapstructure:"fabric_server_authenticator_admin_service_status"`
-	FabricServerZFSPools                        []SIEMComponentZFSPool `yaml:"fabric_server_zfs_pools" json:"fabric_server_zfs_pools" mapstructure:"fabric_server_zfs_pools"`
-
-	ApiServerVersion     *string  `yaml:"api_server_version" json:"api_server_version" mapstructure:"api_server_version"`
-	ApiServerIOWait      *float64 `yaml:"api_server_io_wait" json:"api_server_io_wait" mapstructure:"api_server_io_wait"`
-	ApiServerVMSwapiness *float64 `yaml:"api_server_vm_swapiness" json:"api_server_vm_swapiness" mapstructure:"api_server_vm_swapiness"`
-	ApiServerCpuUsage    *float64 `yaml:"api_server_cluster_cpu_usage" json:"api_server_cpu_usage" mapstructure:"api_server_cpu_usage"`
-	ApiServerMemoryUsage *float64 `yaml:"api_server_cluster_memory_usage" json:"api_server_memory_usage" mapstructure:"api_server_memory_usage"`
-}
-
-// SIEMComponentZFSPool
-//
-// SIEMComponentZFSPool contains information per zfs pool. (siem)
-//
-// swagger:model
-type SIEMComponentZFSPool struct {
-	Name            *string `yaml:"name" json:"name" mapstructure:"name"`
-	Status          *string `yaml:"status" json:"status" mapstructure:"status"`
-	DiskAllocation  *int    `yaml:"disk_allocation" json:"disk_allocation" mapstructure:"disk_allocation"`
-	FreeDiskSpace   *int    `yaml:"free_disk_space" json:"free_disk_space" mapstructure:"free_disk_space"`
-	ReadOperations  *int    `yaml:"read_operations" json:"read_operations" mapstructure:"read_operations"`
-	WriteOperations *int    `yaml:"write_operations" json:"write_operations" mapstructure:"write_operations"`
-	ReadBandwidth   *int    `yaml:"read_bandwidth" json:"read_bandwidth" mapstructure:"read_bandwidth"`
-	WriteBandwidth  *int    `yaml:"write_bandwidth" json:"write_bandwidth" mapstructure:"write_bandwidth"`
-	FailedDisks     *int    `yaml:"failed_disks" json:"failed_disks" mapstructure:"failed_disks"`
-}
-
-// SIEMComponentRepository
-//
-// SIEMComponentRepository contains information per repository. (siem)
-//
-// swagger:model
-type SIEMComponentRepository struct {
-	Name                 *string `yaml:"name" json:"name" mapstructure:"name"`
-	LogSizePreviousDay   *int    `yaml:"log_size_previous_day" json:"log_size_previous_day" mapstructure:"log_size_previous_day"`
-	LogSizePreviousMonth *int    `yaml:"log_size_previous_month" json:"log_size_previous_month" mapstructure:"log_size_previous_month"`
 }
 
 // Rate
