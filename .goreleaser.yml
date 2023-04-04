@@ -3,9 +3,13 @@
 builds:
   - id: "thola"
 
-    ignore:
-      - goos: linux
-        goarch: 386
+    goos:
+      - linux
+      - darwin
+
+    goarch:
+      - amd64
+      - arm64
 
     main: ./main.go
     binary: thola
@@ -15,9 +19,13 @@ builds:
 
   - id: "thola-client"
 
-    ignore:
-      - goos: linux
-        goarch: 386
+    goos:
+      - linux
+      - darwin
+
+    goarch:
+      - amd64
+      - arm64
 
     main: ./main.go
     binary: thola-client
@@ -47,7 +55,3 @@ archives:
   - builds:
       - thola
       - thola-client
-
-    replacements:
-      amd64: 64-bit
-      darwin: macOS
