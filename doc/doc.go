@@ -4,28 +4,27 @@
 //
 // For more information look at our Github : https://github.com/inexio/thola
 //
+//	    Schemes: http, https
+//	    Host: localhost:8237
+//	    Version: 1.0.0
+//	    License: BSD https://github.com/inexio/thola/blob/main/LICENSE
+//	    Consumes:
+//	    - application/json
+//		   - application/xml
 //
-//     Schemes: http, https
-//     Host: localhost:8237
-//     Version: 1.0.0
-//     License: BSD https://github.com/inexio/thola/blob/main/LICENSE
-//     Consumes:
-//     - application/json
-//	   - application/xml
+//	    Produces:
+//	    - application/json
+//	    - application/xml
 //
-//     Produces:
-//     - application/json
-//     - application/xml
+//		   security:
+//	    - basicAuth:
 //
-//	   security:
-//     - basicAuth:
-//
-//	   SecurityDefinitions:
-//       basicAuth:
-//         type: basic
+//		   SecurityDefinitions:
+//	      basicAuth:
+//	        type: basic
 //
 // swagger:meta
 package doc
 
 // Version specifies the current version.
-const Version = "v0.5.4"
+const Version = "v0.6.0"
