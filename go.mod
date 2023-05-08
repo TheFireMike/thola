@@ -10,7 +10,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gomodule/redigo v1.8.4
 	github.com/google/go-cmp v0.5.5
-	github.com/gosnmp/gosnmp v1.30.0
+	github.com/gosnmp/gosnmp v1.35.0
 	github.com/inexio/go-monitoringplugin v1.0.13
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/labstack/echo/v4 v4.9.0
@@ -24,7 +24,7 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/ulule/limiter/v3 v3.5.0
 	golang.org/x/text v0.3.8
 	gopkg.in/yaml.v2 v2.3.0
