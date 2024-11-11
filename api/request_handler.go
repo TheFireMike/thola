@@ -178,6 +178,33 @@ func StartAPI() {
 	//       $ref: '#/definitions/OutputError'
 	e.POST("/check/interface-metrics", checkInterfaceMetrics)
 
+	// swagger:operation POST /check/interface-status check checkInterfaceStatus
+	// ---
+	// summary: Check the interface oper or admin status.
+	// consumes:
+	// - application/json
+	// - application/xml
+	// produces:
+	// - application/json
+	// - application/xml
+	// parameters:
+	// - name: body
+	//   in: body
+	//   description: Request to process.
+	//   required: true
+	//   schema:
+	//     $ref: '#/definitions/CheckInterfaceStatusRequest'
+	// responses:
+	//   200:
+	//     description: Returns the response.
+	//     schema:
+	//       $ref: '#/definitions/CheckResponse'
+	//   400:
+	//     description: Returns an error with more details in the body.
+	//     schema:
+	//       $ref: '#/definitions/OutputError'
+	e.POST("/check/interface-status", checkInterfaceStatus)
+
 	// swagger:operation POST /check/thola-server check checkTholaServer
 	// ---
 	// summary: Check existence of thola servers.
@@ -792,6 +819,18 @@ func checkSNMP(ctx echo.Context) error {
 
 func checkInterfaceMetrics(ctx echo.Context) error {
 	r := request.CheckInterfaceMetricsRequest{}
+	if err := ctx.Bind(&r); err != nil {
+		return err
+	}
+	resp, err := handleAPIRequest(ctx, &r, &r.BaseRequest.DeviceData.IPAddress)
+	if err != nil {
+		return handleError(ctx, err)
+	}
+	return returnInFormat(ctx, http.StatusOK, resp)
+}
+
+func checkInterfaceStatus(ctx echo.Context) error {
+	r := request.CheckInterfaceStatusRequest{}
 	if err := ctx.Bind(&r); err != nil {
 		return err
 	}

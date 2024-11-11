@@ -72,6 +72,10 @@ func (r *CheckInterfaceMetricsRequest) process(ctx context.Context) (Response, e
 	return checkProcess(ctx, r, "check/interface-metrics"), nil
 }
 
+func (r *CheckInterfaceStatusRequest) process(ctx context.Context) (Response, error) {
+	return checkProcess(ctx, r, "check/interface-status"), nil
+}
+
 func (r *CheckTholaServerRequest) process(ctx context.Context) (Response, error) {
 	var res CheckResponse
 	apiFormat := viper.GetString("target-api-format")
