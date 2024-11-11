@@ -54,7 +54,6 @@ out:
 				currentGroup = nextGroup
 			} else {
 				// current interface does not have the filter key so skip it
-				res = append(res, group)
 				continue out
 			}
 		}
@@ -64,8 +63,11 @@ out:
 			log.Ctx(ctx).Debug().Strs("filter_key", g.key).Str("filter_regex", g.regex).
 				Str("received_value", vString).
 				Msgf("filter matched on index '%s' of property group", strconv.Itoa(i))
-		} else {
 			res = append(res, group)
+		} else {
+			log.Ctx(ctx).Debug().Strs("filter_key", g.key).Str("filter_regex", g.regex).
+				Str("received_value", vString).
+				Msgf("filter didn't match on index '%s' of property group", strconv.Itoa(i))
 		}
 	}
 
@@ -131,18 +133,18 @@ func (g *groupFilter) applySNMP(ctx context.Context, reader snmpReader) (snmpRea
 
 	for index, result := range results {
 		if regex.MatchString(result.(value.Value).String()) {
-			// if filter matches add to filtered indices map and delete from wanted indices
+			// if filter matches check if index was filtered before
+			if _, ok := reader.filteredIndices[index]; !ok {
+				// if not add it to wanted indices map
+				reader.wantedIndices[index] = struct{}{}
+			}
+		} else {
+			// if filter does not match add to filtered indices map and delete from wanted indices
 			reader.filteredIndices[index] = struct{}{}
 			delete(reader.wantedIndices, index)
 			log.Ctx(ctx).Debug().Strs("filter_key", g.key).Str("filter_regex", g.regex).
 				Str("received_value", result.(value.Value).String()).
 				Msgf("filter matched on index '%s'", index)
-		} else {
-			// if filter does not match check if index was filtered before
-			if _, ok := reader.filteredIndices[index]; !ok {
-				// if not add it to wanted indices map
-				reader.wantedIndices[index] = struct{}{}
-			}
 		}
 	}
 
@@ -182,10 +184,7 @@ func (g *valueFilter) CheckMatch(value []string) bool {
 			return false
 		}
 	}
-	if len(value) < len(g.value) {
-		return false
-	}
-	return true
+	return len(value) >= len(g.value)
 }
 
 func (g *valueFilter) AddException(value []string) Filter {

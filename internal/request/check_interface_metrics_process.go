@@ -12,6 +12,7 @@ import (
 	"github.com/inexio/thola/internal/network"
 	"github.com/inexio/thola/internal/parser"
 	"github.com/pkg/errors"
+	"regexp"
 )
 
 type interfaceCheckOutput struct {
@@ -45,7 +46,7 @@ func (r *CheckInterfaceMetricsRequest) process(ctx context.Context) (Response, e
 		return &CheckResponse{r.mon.GetInfo()}, nil
 	}
 
-	err = r.normalizeInterfaces(interfaces)
+	err = normalizeInterfaces(interfaces, r.ifDescrRegex, r.IfDescrRegexReplace)
 	if r.mon.UpdateStatusOnError(err, monitoringplugin.UNKNOWN, "error while normalizing interfaces", true) {
 		r.mon.PrintPerformanceData(false)
 		return &CheckResponse{r.mon.GetInfo()}, nil
@@ -130,7 +131,7 @@ func (r *CheckInterfaceMetricsRequest) getFilter() []groupproperty.Filter {
 	return append(r.InterfaceOptions.getFilter(), valueFilter...)
 }
 
-func (r *CheckInterfaceMetricsRequest) normalizeInterfaces(interfaces []device.Interface) error {
+func normalizeInterfaces(interfaces []device.Interface, ifDescrRegex *regexp.Regexp, IfDescrRegexReplace string) error {
 	for i, interf := range interfaces {
 		// if the ifDescr is empty, use the ifIndex as the ifDescr and therefore also as the label for the metrics
 		if interf.IfDescr == nil {
@@ -141,8 +142,8 @@ func (r *CheckInterfaceMetricsRequest) normalizeInterfaces(interfaces []device.I
 			interfaces[i].IfDescr = &index
 		}
 
-		if r.ifDescrRegex != nil {
-			normalizedIfDescr := r.ifDescrRegex.ReplaceAllString(*interfaces[i].IfDescr, r.IfDescrRegexReplace)
+		if ifDescrRegex != nil {
+			normalizedIfDescr := ifDescrRegex.ReplaceAllString(*interfaces[i].IfDescr, IfDescrRegexReplace)
 			interfaces[i].IfDescr = &normalizedIfDescr
 		}
 	}

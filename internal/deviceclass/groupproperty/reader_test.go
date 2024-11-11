@@ -503,18 +503,13 @@ func TestSNMPReader_getProperty_filter(t *testing.T) {
 
 	expectedPropertyGroups := PropertyGroups{
 		propertyGroup{
-			"ifIndex": value.New(1),
-			"ifDescr": value.New("Port 1"),
-		},
-		propertyGroup{
-			"ifIndex": value.New(3),
-			"ifDescr": value.New("Port 3"),
+			"ifIndex": value.New(2),
+			"ifDescr": value.New("Port 2"),
 		},
 	}
 
 	expectedIndices := []value.Value{
-		value.New(1),
-		value.New(3),
+		value.New(2),
 	}
 
 	res, indices, err := sut.GetProperty(ctx, &groupFilter{
@@ -612,25 +607,13 @@ func TestSNMPReader_getProperty_getsInsteadOfWalkFilter(t *testing.T) {
 		})
 
 	snmpClient.
-		On("SNMPGet", ctx, network.OID("1.1"), network.OID("1.3")).
+		On("SNMPGet", ctx, network.OID("1.2")).
 		Return([]network.SNMPResponse{
-			network.NewSNMPResponse("1.1", gosnmp.OctetString, "1"),
-			network.NewSNMPResponse("1.3", gosnmp.OctetString, "3"),
+			network.NewSNMPResponse("1.2", gosnmp.OctetString, "2"),
 		}, nil).
-		On("SNMPGet", ctx, network.OID("1.3"), network.OID("1.1")).
+		On("SNMPGet", ctx, network.OID("2.2")).
 		Return([]network.SNMPResponse{
-			network.NewSNMPResponse("1.1", gosnmp.OctetString, "1"),
-			network.NewSNMPResponse("1.3", gosnmp.OctetString, "3"),
-		}, nil).
-		On("SNMPGet", ctx, network.OID("2.1"), network.OID("2.3")).
-		Return([]network.SNMPResponse{
-			network.NewSNMPResponse("2.1", gosnmp.OctetString, "Port 1"),
-			network.NewSNMPResponse("2.3", gosnmp.OctetString, "Port 3"),
-		}, nil).
-		On("SNMPGet", ctx, network.OID("2.3"), network.OID("2.1")).
-		Return([]network.SNMPResponse{
-			network.NewSNMPResponse("2.1", gosnmp.OctetString, "Port 1"),
-			network.NewSNMPResponse("2.3", gosnmp.OctetString, "Port 3"),
+			network.NewSNMPResponse("2.2", gosnmp.OctetString, "Port 2"),
 		}, nil).
 		On("SNMPWalk", ctx, network.OID("2")).
 		Return([]network.SNMPResponse{
@@ -658,18 +641,13 @@ func TestSNMPReader_getProperty_getsInsteadOfWalkFilter(t *testing.T) {
 
 	expectedPropertyGroups := PropertyGroups{
 		propertyGroup{
-			"ifIndex": value.New(1),
-			"ifDescr": value.New("Port 1"),
-		},
-		propertyGroup{
-			"ifIndex": value.New(3),
-			"ifDescr": value.New("Port 3"),
+			"ifIndex": value.New(2),
+			"ifDescr": value.New("Port 2"),
 		},
 	}
 
 	expectedIndices := []value.Value{
-		value.New(1),
-		value.New(3),
+		value.New(2),
 	}
 
 	res, indices, err := sut.GetProperty(ctx, &groupFilter{

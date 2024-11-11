@@ -51,6 +51,7 @@ Thola currently has three main modes of operation with various subcommands:
     - `check high-availability` checks the high availability status of a device.
     - `check identify` compares the device properties with given expectations.
     - `check interface-metrics` outputs performance data for the interfaces, including special values based on the interface type (e.g. Radio Interface).
+    - `check interface-status` checks the interface operational or administrative status.
     - `check memory-usage` checks the current memory usage against given thresholds.
     - `check sbc` checks an SBC device and outputs metrics for each realm and agent as performance data.
     - `check server` checks server specific information.
