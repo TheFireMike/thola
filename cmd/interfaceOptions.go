@@ -16,9 +16,9 @@ func buildInterfaceOptionsFlagSet() *flag.FlagSet {
 	fs.Bool("snmp-gets-instead-of-walk", false, "Use SNMP Gets instead of Walks")
 	fs.String("ifDescr-regex", "", "Apply a regex on the ifDescr of the interfaces. Use it together with the 'ifDescr-regex-replace' flag")
 	fs.String("ifDescr-regex-replace", "", "Apply a regex on the ifDescr of the interfaces. Use it together with the 'ifDescr-regex' flag")
-	fs.StringSlice("ifType-filter", []string{}, "Filter out interfaces which ifType equals the given types")
-	fs.StringSlice("ifName-filter", []string{}, "Filter out interfaces which ifName matches the given regex")
-	fs.StringSlice("ifDescr-filter", []string{}, "Filter out interfaces which ifDescription matches the given regex")
+	fs.StringSlice("ifType-filter", []string{}, "Filter interfaces which ifType equals the given types")
+	fs.StringSlice("ifName-filter", []string{}, "Filter interfaces which ifName matches the given regex")
+	fs.StringSlice("ifDescr-filter", []string{}, "Filter interfaces which ifDescription matches the given regex")
 
 	return fs
 }

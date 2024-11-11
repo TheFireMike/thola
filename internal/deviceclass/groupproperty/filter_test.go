@@ -27,8 +27,8 @@ func TestGroupFilter_ApplyPropertyGroups(t *testing.T) {
 
 	expected := PropertyGroups{
 		propertyGroup{
-			"ifIndex": "2",
-			"ifDescr": "Mgmt",
+			"ifIndex": "1",
+			"ifDescr": "Ethernet #1",
 		},
 	}
 
@@ -52,7 +52,7 @@ func TestGroupFilter_ApplyPropertyGroups_noMatch(t *testing.T) {
 	filteredGroup, err := filter.ApplyPropertyGroups(context.Background(), groups)
 	assert.NoError(t, err)
 
-	assert.Equal(t, groups, filteredGroup)
+	assert.True(t, len(filteredGroup) == 0)
 }
 
 func TestGroupFilter_ApplyPropertyGroups_nested(t *testing.T) {
@@ -77,8 +77,11 @@ func TestGroupFilter_ApplyPropertyGroups_nested(t *testing.T) {
 
 	expected := PropertyGroups{
 		propertyGroup{
-			"ifIndex": "2",
-			"ifDescr": "Mgmt",
+			"ifIndex": "1",
+			"ifDescr": "Ethernet #1",
+			"radio": propertyGroup{
+				"level_in": "10",
+			},
 		},
 	}
 
@@ -117,10 +120,10 @@ func TestGroupFilter_applySNMP(t *testing.T) {
 
 	expected := snmpReader{
 		wantedIndices: map[string]struct{}{
-			"2": {},
+			"1": {},
 		},
 		filteredIndices: map[string]struct{}{
-			"1": {},
+			"2": {},
 		},
 		oids: &deviceClassOIDs{
 			"ifDescr": &deviceClassOID{
@@ -178,10 +181,10 @@ func TestGroupFilter_applySNMP_nested(t *testing.T) {
 
 	expected := snmpReader{
 		wantedIndices: map[string]struct{}{
-			"2": {},
+			"1": {},
 		},
 		filteredIndices: map[string]struct{}{
-			"1": {},
+			"2": {},
 		},
 		oids: &deviceClassOIDs{
 			"ifDescr": &deviceClassOID{
@@ -233,11 +236,11 @@ func TestGroupFilter_applySNMP_noMatch(t *testing.T) {
 	assert.NoError(t, err)
 
 	expected := snmpReader{
-		wantedIndices: map[string]struct{}{
+		wantedIndices: map[string]struct{}{},
+		filteredIndices: map[string]struct{}{
 			"1": {},
 			"2": {},
 		},
-		filteredIndices: map[string]struct{}{},
 		oids: &deviceClassOIDs{
 			"ifDescr": &deviceClassOID{
 				SNMPGetConfiguration: network.SNMPGetConfiguration{
