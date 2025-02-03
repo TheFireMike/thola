@@ -275,6 +275,9 @@ func InterfaceSlice2Operators(i []interface{}, task condition.RelatedTask) (Oper
 
 				divideModifier.value = valueReader
 				modifier.operator = &divideModifier
+			case "hexToDecimal":
+				var hexToDecimalModifier hexToDecimalModifier
+				modifier.operator = &hexToDecimalModifier
 			default:
 				return nil, fmt.Errorf("invalid modify method '%s'", modifyMethod)
 			}
@@ -680,6 +683,17 @@ func (r *mapModifier) modify(_ context.Context, v value.Value) (value.Value, err
 		return nil, nil
 	}
 	return nil, tholaerr.NewNotFoundError("string not found in mapping")
+}
+
+type hexToDecimalModifier struct {
+}
+
+func (r *hexToDecimalModifier) modify(_ context.Context, v value.Value) (value.Value, error) {
+	res, err := strconv.ParseUint(v.String(), 16, 64)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert hex to decimal")
+	}
+	return value.New(res), nil
 }
 
 type genericStringSwitch struct {

@@ -79,3 +79,61 @@ components:
           values:
             etherStatsCRCAlignErrors:
               oid: 1.3.6.1.2.1.16.1.1.1.8
+        pon:
+          values:
+            bytes_in:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.13
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            bytes_out:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.12
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            ucast_pkts_out:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.21
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            mcast_pkts_out:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.23
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            bcast_pkts_out:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.24
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            total_pkts_in:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.26
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            total_pkts_out:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.25
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            drop_pkts_in:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.28
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            drop_pkts_out:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.31
+              use_raw_result: true
+              operators:
+                - type: modify
+                  modify_method: hexToDecimal
+            active_onts:
+              oid: .1.3.6.1.4.1.637.61.1.35.21.57.1.16
