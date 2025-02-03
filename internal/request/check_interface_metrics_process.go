@@ -603,6 +603,70 @@ func addCheckInterfacePerformanceData(interfaces []device.Interface, r *monitori
 				}
 			}
 		}
+
+		//PON
+		if i.PON != nil {
+			if i.PON.BytesIn != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("traffic_counter_in", *i.PON.BytesIn).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.BytesOut != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("traffic_counter_out", *i.PON.BytesOut).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.UcastPktsOut != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("packet_counter_unicast_out", *i.PON.UcastPktsOut).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.McastPktsOut != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("packet_counter_multicast_out", *i.PON.McastPktsOut).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.BcastPktsOut != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("packet_counter_broadcast_out", *i.PON.BcastPktsOut).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.TotalPktsIn != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("packet_counter_in", *i.PON.TotalPktsIn).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.TotalPktsOut != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("packet_counter_out", *i.PON.TotalPktsOut).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.DropPktsIn != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("error_counter_in", *i.PON.DropPktsIn).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.DropPktsOut != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("error_counter_out", *i.PON.DropPktsOut).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+			if i.PON.ActiveONTs != nil {
+				err := r.AddPerformanceDataPoint(monitoringplugin.NewPerformanceDataPoint("active_onts", *i.PON.ActiveONTs).SetUnit("c").SetLabel(*i.IfDescr))
+				if err != nil {
+					return err
+				}
+			}
+		}
 	}
 	return nil
 }

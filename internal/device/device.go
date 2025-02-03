@@ -131,6 +131,7 @@ type Interface struct {
 	OpticalOPM         *OpticalOPMInterface         `yaml:"optical_opm,omitempty" json:"optical_opm,omitempty" xml:"optical_opm,omitempty" mapstructure:"optical_opm,omitempty"`
 	SAP                *SAPInterface                `yaml:"sap,omitempty" json:"sap,omitempty" xml:"sap,omitempty" mapstructure:"sap,omitempty"`
 	VLAN               *VLANInformation             `yaml:"vlan,omitempty" json:"vlan,omitempty" xml:"vlan,omitempty" mapstructure:"vlan,omitempty"`
+	PON                *PON                         `yaml:"pon,omitempty" json:"pon,omitempty" xml:"pon,omitempty" mapstructure:"pon,omitempty"`
 }
 
 //
@@ -283,6 +284,24 @@ type VLANInformation struct {
 type VLAN struct {
 	Name   *string `yaml:"name" json:"name" xml:"name" mapstructure:"name"`
 	Status *string `yaml:"status" json:"status" xml:"status" mapstructure:"status"`
+}
+
+// PON
+//
+// PON represents a PON Port.
+//
+// swagger:model
+type PON struct {
+	BytesIn      *uint64 `yaml:"bytes_in" json:"bytes_in" xml:"bytes_in" mapstructure:"bytes_in"`
+	BytesOut     *uint64 `yaml:"bytes_out" json:"bytes_out" xml:"bytes_out" mapstructure:"bytes_out"`
+	UcastPktsOut *uint64 `yaml:"ucast_pkts_out" json:"ucast_pkts_out" xml:"ucast_pkts_out" mapstructure:"ucast_pkts_out"`
+	McastPktsOut *uint64 `yaml:"mcast_pkts_out" json:"mcast_pkts_out" xml:"mcast_pkts_out" mapstructure:"mcast_pkts_out"`
+	BcastPktsOut *uint64 `yaml:"bcast_pkts_out" json:"bcast_pkts_out" xml:"bcast_pkts_out" mapstructure:"bcast_pkts_out"`
+	TotalPktsIn  *uint64 `yaml:"total_pkts_in" json:"total_pkts_in" xml:"total_pkts_in" mapstructure:"total_pkts_in"`
+	TotalPktsOut *uint64 `yaml:"total_pkts_out" json:"total_pkts_out" xml:"total_pkts_out" mapstructure:"total_pkts_out"`
+	DropPktsIn   *uint64 `yaml:"drop_pkts_in" json:"drop_pkts_in" xml:"drop_pkts_in" mapstructure:"drop_pkts_in"`
+	DropPktsOut  *uint64 `yaml:"drop_pkts_out" json:"drop_pkts_out" xml:"drop_pkts_out" mapstructure:"drop_pkts_out"`
+	ActiveONTs   *uint64 `yaml:"active_onts" json:"active_onts" xml:"active_onts" mapstructure:"active_onts"`
 }
 
 //
