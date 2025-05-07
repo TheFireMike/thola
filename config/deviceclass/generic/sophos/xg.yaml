@@ -1,5 +1,9 @@
 name: "XG"
 
+config:
+  components:
+    high_availability: true
+
 match:
   logical_operator: OR
   conditions:
